@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MVC & Java Learning Quiz</title>
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --panel: #ffffff;
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --accent: #10b981;
+        --danger: #ef4444;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #dfe7f1;
+        --shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(135deg, #eef4ff, #f8fafc 30%, #eefbf6);
+        color: var(--text);
+      }
+
+      .page {
+        max-width: 1100px;
+        margin: 32px auto;
+        padding: 0 20px 40px;
+      }
+
+      .header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border-radius: 18px;
+        padding: 28px 32px;
+        box-shadow: var(--shadow);
+      }
+
+      .header h1 {
+        margin: 0 0 8px;
+        font-size: clamp(2rem, 3vw, 2.7rem);
+      }
+
+      .header p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 1.02rem;
+      }
+
+      .quiz-shell {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 22px;
+        margin-top: 22px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+      }
+
+      .status-bar {
+        padding: 18px 22px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #e0ecff;
+        color: var(--primary-dark);
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+
+      .progress {
+        font-weight: 700;
+        color: var(--muted);
+      }
+
+      .quiz-content {
+        padding: 30px 22px 24px;
+      }
+
+      .question-card {
+        display: none;
+      }
+
+      .question-card.active {
+        display: block;
+      }
+
+      .question-title {
+        margin: 0 0 18px;
+        font-size: clamp(1.2rem, 2vw, 1.6rem);
+      }
+
+      .option-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 12px;
+      }
+
+      .option-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        transition: 0.2s ease;
+        cursor: pointer;
+      }
+
+      .option-item:hover {
+        border-color: var(--primary);
+        background: #f0f7ff;
+      }
+
+      .option-item input {
+        accent-color: var(--primary);
+        width: 18px;
+        height: 18px;
+        margin: 0;
+      }
+
+      .option-label {
+        flex: 1;
+        font-size: 1rem;
+      }
+
+      .nav-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-top: 26px;
+      }
+
+      button {
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.15s ease, opacity 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      .secondary {
+        background: #e2e8f0;
+        color: var(--text);
+        padding: 12px 18px;
+      }
+
+      .primary {
+        background: var(--primary);
+        color: white;
+        padding: 12px 20px;
+      }
+
+      .success {
+        background: var(--accent);
+        color: white;
+        padding: 12px 18px;
+      }
+
+      .result-panel {
+        display: none;
+        padding: 30px 22px;
+      }
+
+      .result-panel.visible {
+        display: block;
+      }
+
+      .result-score {
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        font-weight: 800;
+        margin: 10px 0 4px;
+      }
+
+      .result-message {
+        margin: 0;
+        font-size: 1.06rem;
+        color: var(--muted);
+      }
+
+      .result-summary {
+        margin-top: 16px;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 16px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          margin-top: 16px;
+          padding: 0 12px 24px;
+        }
+
+        .header,
+        .quiz-content,
+        .status-bar,
+        .result-panel {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+
+        .nav-row {
+          flex-direction: column-reverse;
+          align-items: stretch;
+        }
+
+        .nav-row button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <h1>Java MVC & Web Fundamentals Quiz</h1>
+        <p>Test your understanding of MVC architecture, Struts, Spring, Hibernate, SQL, Java 21, and JavaScript timeout behavior.</p>
+      </header>
+
+      <main class="quiz-shell">
+        <section class="panel status-bar">
+          <span class="badge" id="questionCounter">Question 1 of 12</span>
+          <span class="progress" id="progressText">Progress: 0%</span>
+        </section>
+
+        <section class="panel quiz-content">
+          <div id="questionContainer"></div>
+
+          <div class="nav-row">
+            <button type="button" id="prevBtn" class="secondary">Previous</button>
+            <button type="button" id="nextBtn" class="primary">Next</button>
+          </div>
+        </section>
+
+        <section id="resultPanel" class="panel result-panel" aria-live="polite">
+          <h2>Your result</h2>
+          <div id="scoreValue" class="result-score">0/12</div>
+          <p id="resultMessage" class="result-message"></p>
+          <div id="resultSummary" class="result-summary"></div>
+          <div class="nav-row" style="margin-top: 18px;">
+            <button type="button" id="retryBtn" class="success">Try again</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const questions = [
+        {
+          question: 'In MVC, which component is responsible for handling user requests and updating the model or view?',
+          options: ['Model', 'Controller', 'View', 'Database'],
+          answer: 'Controller'
+        },
+        {
+          question: 'Which framework is widely associated with the classic Struts MVC pattern in Java web applications?',
+          options: ['Spring Boot', 'Struts', 'Hibernate', 'JPA'],
+          answer: 'Struts'
+        },
+        {
+          question: 'In Spring MVC, which part usually represents the presentation layer and renders HTML to the browser?',
+          options: ['Service layer', 'Controller', 'View template', 'Repository'],
+          answer: 'View template'
+        },
+        {
+          question: 'What is the main purpose of Hibernate in a Java application?',
+          options: ['To compile Java code', 'To manage database transactions and ORM mapping', 'To render CSS', 'To create REST endpoints'],
+          answer: 'To manage database transactions and ORM mapping'
+        },
+        {
+          question: 'Which SQL clause is used to filter rows before grouping or aggregation?',
+          options: ['HAVING', 'WHERE', 'GROUP BY', 'ORDER BY'],
+          answer: 'WHERE'
+        },
+        {
+          question: 'Which SQL property is most directly associated with the ACID principle that guarantees a transaction is fully completed or rolled back?',
+          options: ['Atomicity', 'Normalization', 'Indexing', 'Cascading'],
+          answer: 'Atomicity'
+        },
+        {
+          question: 'Which Java 21 feature is commonly known for improving concurrency handling with lightweight threads?',
+          options: ['Thread pools', 'Virtual threads', 'Sockets', 'Coroutines'],
+          answer: 'Virtual threads'
+        },
+        {
+          question: 'In JavaScript, what happens when setTimeout is called with a delay of 1000 milliseconds?',
+          options: ['The function executes immediately', 'The function runs after about 1 second', 'The timer is blocked until the page reloads', 'The function is queued as a database task'],
+          answer: 'The function runs after about 1 second'
+        },
+        {
+          question: 'Which JavaScript method cancels a pending timeout created by setTimeout?',
+          options: ['clearInterval()', 'removeTimeout()', 'clearTimeout()', 'cancelTimer()'],
+          answer: 'clearTimeout()'
+        },
+        {
+          question: 'Why is parameter binding or prepared statements preferred over string concatenation in SQL queries?',
+          options: ['It makes queries shorter', 'It reduces SQL injection risk and preserves type safety', 'It is required for all SELECT statements', 'It removes the need for indexes'],
+          answer: 'It reduces SQL injection risk and preserves type safety'
+        },
+        {
+          question: 'In a basic MVC design, what is the model typically responsible for?',
+          options: ['Rendering the UI', 'Holding business data and logic', 'Mapping browser requests to URLs', 'Managing CSS styles'],
+          answer: 'Holding business data and logic'
+        },
+        {
+          question: 'Which statement best describes a SQL join?',
+          options: ['It creates a new table structure from scratch', 'It combines rows from two or more tables based on a related column', 'It prevents duplicate rows in the database', 'It sorts query results alphabetically'],
+          answer: 'It combines rows from two or more tables based on a related column'
+        }
+      ];
+
+      const questionContainer = document.getElementById('questionContainer');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const resultPanel = document.getElementById('resultPanel');
+      const scoreValue = document.getElementById('scoreValue');
+      const resultMessage = document.getElementById('resultMessage');
+      const resultSummary = document.getElementById('resultSummary');
+      const questionCounter = document.getElementById('questionCounter');
+      const progressText = document.getElementById('progressText');
+      const retryBtn = document.getElementById('retryBtn');
+
+      let currentIndex = 0;
+      let userAnswers = new Array(questions.length).fill(null);
+
+      function renderQuestion() {
+        const currentQuestion = questions[currentIndex];
+        const questionNumber = currentIndex + 1;
+        const answeredCount = userAnswers.filter(Boolean).length;
+
+        questionContainer.innerHTML = `
+          <div class="question-card active">
+            <p class="question-title">${questionNumber}. ${currentQuestion.question}</p>
+            <ul class="option-list">
+              ${currentQuestion.options.map((option, index) => `
+                <li>
+                  <label class="option-item">
+                    <input type="radio" name="q${currentIndex}" value="${option}" ${userAnswers[currentIndex] === option ? 'checked' : ''} />
+                    <span class="option-label">${String.fromCharCode(65 + index)}. ${option}</span>
+                  </label>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+        `;
+
+        const radioButtons = questionContainer.querySelectorAll('input[type="radio"]');
+        radioButtons.forEach((radio) => {
+          radio.addEventListener('change', (event) => {
+            userAnswers[currentIndex] = event.target.value;
+            updateProgress();
+          });
+        });
+
+        prevBtn.disabled = currentIndex === 0;
+        prevBtn.style.opacity = currentIndex === 0 ? '0.45' : '1';
+        prevBtn.style.cursor = currentIndex === 0 ? 'not-allowed' : 'pointer';
+
+        nextBtn.textContent = currentIndex === questions.length - 1 ? 'Finish Test' : 'Next';
+        questionCounter.textContent = `Question ${questionNumber} of ${questions.length}`;
+        progressText.textContent = `Progress: ${Math.round((answeredCount / questions.length) * 100)}%`;
+      }
+
+      function updateProgress() {
+        const answeredCount = userAnswers.filter((value) => value !== null).length;
+        progressText.textContent = `Progress: ${Math.round((answeredCount / questions.length) * 100)}%`;
+      }
+
+      function nextQuestion() {
+        if (currentIndex < questions.length - 1) {
+          currentIndex += 1;
+          renderQuestion();
+        } else {
+          finishQuiz();
+        }
+      }
+
+      function prevQuestion() {
+        if (currentIndex > 0) {
+          currentIndex -= 1;
+          renderQuestion();
+        }
+      }
+
+      function finishQuiz() {
+        let score = 0;
+        questions.forEach((question, index) => {
+          if (userAnswers[index] === question.answer) {
+            score += 1;
+          }
+        });
+
+        const percentage = Math.round((score / questions.length) * 100);
+        const summary = score >= 9
+          ? 'Excellent work. You have a strong foundation in MVC, Java, SQL, and JavaScript timing concepts.'
+          : score >= 6
+            ? 'Good effort. Review the questions you missed and focus on the weaker topics before the next assessment.'
+            : 'Keep practicing. The concepts are approachable, and a quick revision of MVC, SQL, and JavaScript timing will help.';
+
+        scoreValue.textContent = `${score}/${questions.length}`;
+        resultMessage.textContent = `${percentage}% score`;
+        resultSummary.textContent = `${summary} Correct answers: ${score}. Incorrect answers: ${questions.length - score}.`;
+
+        document.querySelector('.quiz-content').classList.add('hidden');
+        document.querySelector('.status-bar').classList.add('hidden');
+        resultPanel.classList.add('visible');
+      }
+
+      function resetQuiz() {
+        currentIndex = 0;
+        userAnswers = new Array(questions.length).fill(null);
+        resultPanel.classList.remove('visible');
+        document.querySelector('.quiz-content').classList.remove('hidden');
+        document.querySelector('.status-bar').classList.remove('hidden');
+        renderQuestion();
+      }
+
+      prevBtn.addEventListener('click', prevQuestion);
+      nextBtn.addEventListener('click', nextQuestion);
+      retryBtn.addEventListener('click', resetQuiz);
+
+      renderQuestion();
+    </script>
+  </body>
+</html>

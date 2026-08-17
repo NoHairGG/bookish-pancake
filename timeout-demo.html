@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JavaScript Timeout Demo</title>
+    <style>
+      :root {
+        --bg: #f3f7ff;
+        --panel: #ffffff;
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --accent: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #dfe9f5;
+        --shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(135deg, #edf4ff, #f8fafc 40%, #ecfdf5);
+        color: var(--text);
+      }
+
+      .page {
+        max-width: 1000px;
+        margin: 32px auto;
+        padding: 0 18px 40px;
+      }
+
+      .header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border-radius: 18px;
+        padding: 26px 28px;
+        box-shadow: var(--shadow);
+      }
+
+      .header h1 {
+        margin: 0 0 8px;
+        font-size: clamp(2rem, 3vw, 2.6rem);
+      }
+
+      .header p {
+        margin: 0;
+        opacity: 0.92;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        margin-top: 22px;
+      }
+
+      .controls {
+        padding: 22px;
+      }
+
+      .button-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      button {
+        border: none;
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-size: 0.98rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.15s ease, opacity 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      .primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .secondary {
+        background: #e2e8f0;
+        color: var(--text);
+      }
+
+      .danger {
+        background: var(--danger);
+        color: white;
+      }
+
+      .demo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        padding: 22px;
+      }
+
+      .timer-card {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: #f8fafc;
+        padding: 16px;
+      }
+
+      .timer-card h3 {
+        margin: 0 0 10px;
+        font-size: 1.05rem;
+      }
+
+      .timer-card .time-tag {
+        display: inline-block;
+        background: #dbeafe;
+        color: var(--primary-dark);
+        padding: 6px 9px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .console {
+        padding: 22px;
+      }
+
+      .console h2 {
+        margin-top: 0;
+      }
+
+      .log {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 12px;
+        padding: 14px 16px;
+        min-height: 220px;
+        max-height: 260px;
+        overflow-y: auto;
+        font-family: Consolas, monospace;
+        font-size: 0.92rem;
+        line-height: 1.6;
+      }
+
+      .log-entry {
+        margin: 0 0 8px;
+        white-space: pre-wrap;
+      }
+
+      .log-entry.success { color: #a7f3d0; }
+      .log-entry.warn { color: #fcd34d; }
+      .log-entry.info { color: #bfdbfe; }
+
+      @media (max-width: 600px) {
+        .page {
+          margin-top: 16px;
+          padding: 0 12px 24px;
+        }
+
+        .header,
+        .controls,
+        .demo-grid,
+        .console {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+
+        .button-row {
+          flex-direction: column;
+        }
+
+        .button-row button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <h1>JavaScript Timeout Demo</h1>
+        <p>Observe how different timeout values trigger functions at different times in the event loop.</p>
+      </header>
+
+      <section class="panel controls">
+        <h2>Run timeout examples</h2>
+        <div class="button-row">
+          <button class="primary" id="runAllBtn">Run all timeout values</button>
+          <button class="secondary" id="clearBtn">Clear log</button>
+          <button class="danger" id="resetBtn">Reset demo</button>
+        </div>
+      </section>
+
+      <section class="panel demo-grid">
+        <div class="timer-card">
+          <h3>Timeout 0 ms</h3>
+          <span class="time-tag">Immediate queue</span>
+        </div>
+        <div class="timer-card">
+          <h3>Timeout 100 ms</h3>
+          <span class="time-tag">Short delay</span>
+        </div>
+        <div class="timer-card">
+          <h3>Timeout 200 ms</h3>
+          <span class="time-tag">Medium delay</span>
+        </div>
+        <div class="timer-card">
+          <h3>Timeout 300 ms</h3>
+          <span class="time-tag">Longer delay</span>
+        </div>
+        <div class="timer-card">
+          <h3>Timeout 1000 ms</h3>
+          <span class="time-tag">One second</span>
+        </div>
+      </section>
+
+      <section class="panel console">
+        <h2>Execution log</h2>
+        <div id="log" class="log" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <script>
+      const logEl = document.getElementById('log');
+      const runAllBtn = document.getElementById('runAllBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const resetBtn = document.getElementById('resetBtn');
+
+      let timers = [];
+
+      function addLog(message, type = 'info') {
+        const line = document.createElement('div');
+        line.className = `log-entry ${type}`;
+        line.textContent = message;
+        logEl.appendChild(line);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function clearTimers() {
+        timers.forEach((timer) => clearTimeout(timer));
+        timers = [];
+      }
+
+      function showStart() {
+        addLog('Starting timeout demonstration...', 'info');
+        addLog('Main JavaScript thread continues running immediately.', 'warn');
+      }
+
+      function scheduleTimeout(value, label) {
+        const start = performance.now();
+        const timer = setTimeout(() => {
+          const elapsed = Math.round(performance.now() - start);
+          addLog(`${label} fired after ${elapsed} ms.`, 'success');
+        }, value);
+
+        timers.push(timer);
+        addLog(`Scheduled ${label} with ${value} ms timeout.`, 'info');
+      }
+
+      function runAllTimeouts() {
+        clearTimers();
+        logEl.innerHTML = '';
+        showStart();
+
+        scheduleTimeout(1000, 'Function with timeout 1000');
+        scheduleTimeout(0, 'Function with timeout 0');
+        scheduleTimeout(300, 'Function with timeout 300');
+        scheduleTimeout(100, 'Function with timeout 100');
+        scheduleTimeout(200, 'Function with timeout 200');
+
+        const immediateMessage = 'Note: 0 ms does not mean “run instantly in the same line”; it is placed in the event queue.';
+        addLog(immediateMessage, 'warn');
+      }
+
+      function clearLog() {
+        logEl.innerHTML = '';
+        addLog('Log cleared. Ready for a new demo run.', 'info');
+      }
+
+      function resetDemo() {
+        clearTimers();
+        logEl.innerHTML = '';
+        addLog('Demo reset. Press “Run all timeout values” to start again.', 'info');
+      }
+
+      runAllBtn.addEventListener('click', runAllTimeouts);
+      clearBtn.addEventListener('click', clearLog);
+      resetBtn.addEventListener('click', resetDemo);
+
+      resetDemo();
+    </script>
+  </body>
+</html>
